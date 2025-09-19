@@ -1,65 +1,28 @@
 {
-  description = "A faster, persistent implementation of `direnv`'s `use_nix`, to replace the built-in one.";
+  description = "A flake for this submodule, providing a basic development shell.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs-lib.follows = "nixpkgs";
-    };
-    treefmt-nix = {
-      url = "github:numtide/treefmt-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.05";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs =
-    inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } (
-      { lib, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; };
+      in
       {
-        imports = [ ./treefmt.nix ];
-        systems = [
-          "aarch64-linux"
-          "x86_64-linux"
+        devShells.default = pkgs.mkShell {
+          packages = with pkgs; [
+            bash
+            git
+            shellcheck # Add shellcheck for shell script linting
+            # Add any other common tools needed for your submodules here
+          ];
 
-          "x86_64-darwin"
-          "aarch64-darwin"
-        ];
-        perSystem =
-          {
-            config,
-            pkgs,
-            self',
-            ...
-          }:
-          let
-            nix-direnv = pkgs.callPackage ./default.nix { };
-            test_pkgs = pkgs.lib.callPackagesWith pkgs ./tests { inherit nix-direnv; };
-          in
-          {
-            packages = test_pkgs // {
-              inherit nix-direnv;
-              default = nix-direnv;
-            };
-
-            devShells.default = pkgs.callPackage ./shell.nix {
-              treefmt = config.treefmt.build.wrapper;
-            };
-
-            checks =
-              let
-                packages = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") self'.packages;
-                devShells = lib.mapAttrs' (n: lib.nameValuePair "devShell-${n}") self'.devShells;
-              in
-              packages // devShells;
-          };
-        flake = {
-          overlays.default = final: _prev: { nix-direnv = final.callPackage ./default.nix { }; };
-          templates.default = {
-            path = ./templates/flake;
-            description = "nix flake new -t github:nix-community/nix-direnv .";
-          };
+          shellHook = ''
+            echo "Welcome to the development shell of this submodule!"
+          '';
         };
       }
     );
