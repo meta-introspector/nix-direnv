@@ -1,9 +1,9 @@
 {
   description = "A basic flake with a shell";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.systems.url = "github:nix-systems/default";
+  inputs.nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+  inputs.systems.url = "github:meta-introspector/default?ref=feature/CRQ-016-nixify";
   inputs.flake-utils = {
-    url = "github:numtide/flake-utils";
+    url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
     inputs.systems.follows = "systems";
   };
 

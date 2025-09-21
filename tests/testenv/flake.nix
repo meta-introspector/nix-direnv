@@ -1,7 +1,7 @@
 {
   description = "A very basic flake";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+  inputs.flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
 
   # deadnix: skip
   outputs =
